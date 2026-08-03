@@ -1,0 +1,6 @@
+{
+  "name": "Calculadora de Salários",
+  "description": "Cálculo de vencimentos em horas (Obras no Estrangeiro)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
