@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, WorkerData, PayrollCalculation } from '../types';
 import { calculatePayroll } from '../utils/payroll';
 import EmployeeForm from './EmployeeForm';
 import DailyHoursCalendar from './DailyHoursCalendar';
 import PayrollResult from './PayrollResult';
 import ReportTab from './ReportTab';
-import { Calculator, LogOut, LayoutDashboard, FileSpreadsheet } from 'lucide-react';
+import { Calculator, LogOut, Calendar, FileSpreadsheet, SlidersHorizontal } from 'lucide-react';
 
 interface DashboardProps {
   user: User;
@@ -29,17 +29,39 @@ const defaultWorkerData: WorkerData = {
 };
 
 export default function Dashboard({ user, onLogout }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'calculator' | 'report'>('calculator');
-  const [workerData, setWorkerData] = useState<WorkerData>(defaultWorkerData);
-  const [result, setResult] = useState<PayrollCalculation | null>(null);
+  const [activeTab, setActiveTab] = useState<'calendar' | 'calculator' | 'report'>('calendar');
+  
+  // Data for Calendar View
+  const [calendarWorkerData, setCalendarWorkerData] = useState<WorkerData>({ ...defaultWorkerData });
+  const [calendarResult, setCalendarResult] = useState<PayrollCalculation | null>(null);
 
-  const handleCalculate = () => {
-    const calcResult = calculatePayroll(workerData);
-    setResult(calcResult);
+  // Data for Standalone Calculator View
+  const [manualWorkerData, setManualWorkerData] = useState<WorkerData>({
+    ...defaultWorkerData,
+    hoursWorked: 160,
+    daysWorked: 20,
+  });
+  const [manualResult, setManualResult] = useState<PayrollCalculation | null>(null);
+
+  // Auto-calculate for Calendar View whenever calendar data changes
+  useEffect(() => {
+    const res = calculatePayroll(calendarWorkerData);
+    setCalendarResult(res);
+  }, [calendarWorkerData]);
+
+  // Handle manual calculation button or changes for standalone calculator
+  const handleCalculateManual = () => {
+    const res = calculatePayroll(manualWorkerData);
+    setManualResult(res);
   };
 
+  // Auto-calculate initial manual result
+  useEffect(() => {
+    handleCalculateManual();
+  }, [manualWorkerData]);
+
   const handleApplyCalendarTotals = (totalHours: number, totalAllowanceDays: number) => {
-    setWorkerData(prev => ({
+    setCalendarWorkerData(prev => ({
       ...prev,
       hoursWorked: totalHours,
       daysWorked: totalAllowanceDays,
@@ -56,7 +78,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
             </div>
             <div>
               <h1 className="text-xl font-bold text-neutral-100 leading-tight tracking-tight uppercase">Calculadora de Salários</h1>
-              <p className="text-xs text-neutral-500 font-medium hidden sm:block tracking-widest uppercase">Cálculo de Vencimentos em Horas</p>
+              <p className="text-xs text-neutral-500 font-medium hidden sm:block tracking-widest uppercase">Cálculo de Vencimentos & Diárias</p>
             </div>
           </div>
           
@@ -78,6 +100,17 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
         {/* Navigation Tabs */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-8 border-t border-neutral-800 overflow-x-auto">
           <button
+            onClick={() => setActiveTab('calendar')}
+            className={`py-3 text-xs tracking-widest uppercase font-semibold flex items-center gap-2 border-b-2 transition-colors ${
+              activeTab === 'calendar' 
+                ? 'border-cyan-400 text-cyan-400' 
+                : 'border-transparent text-neutral-500 hover:text-neutral-300'
+            }`}
+          >
+            <Calendar className="w-4 h-4" />
+            Registro de Horas (Calendário)
+          </button>
+          <button
             onClick={() => setActiveTab('calculator')}
             className={`py-3 text-xs tracking-widest uppercase font-semibold flex items-center gap-2 border-b-2 transition-colors ${
               activeTab === 'calculator' 
@@ -85,8 +118,8 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
                 : 'border-transparent text-neutral-500 hover:text-neutral-300'
             }`}
           >
-            <LayoutDashboard className="w-4 h-4" />
-            Calculadora
+            <SlidersHorizontal className="w-4 h-4" />
+            Calculadora Directa
           </button>
           <button
             onClick={() => setActiveTab('report')}
@@ -103,7 +136,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'calculator' ? (
+        {activeTab === 'calendar' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 space-y-8">
               <DailyHoursCalendar 
@@ -112,20 +145,46 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
               />
               
               <EmployeeForm 
-                data={workerData} 
-                onChange={setWorkerData} 
-                onCalculate={handleCalculate} 
+                data={calendarWorkerData} 
+                onChange={setCalendarWorkerData} 
+                onCalculate={() => setCalendarResult(calculatePayroll(calendarWorkerData))} 
+                mode="calendar"
               />
             </div>
             
             <div className="lg:col-span-4">
-              <div className="sticky top-40">
-                <PayrollResult result={result} />
+              <div className="sticky top-24">
+                <PayrollResult result={calendarResult} />
               </div>
             </div>
           </div>
-        ) : (
-          <ReportTab userId={user.id} result={result} workerData={workerData} />
+        )}
+
+        {activeTab === 'calculator' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-8">
+              <EmployeeForm 
+                data={manualWorkerData} 
+                onChange={setManualWorkerData} 
+                onCalculate={handleCalculateManual} 
+                mode="calculator"
+              />
+            </div>
+            
+            <div className="lg:col-span-4">
+              <div className="sticky top-24">
+                <PayrollResult result={manualResult} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'report' && (
+          <ReportTab 
+            userId={user.id} 
+            result={calendarResult || manualResult} 
+            workerData={calendarWorkerData} 
+          />
         )}
       </main>
     </div>

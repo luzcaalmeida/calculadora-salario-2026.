@@ -67,10 +67,20 @@ export default function DailyHoursCalendar({ userId, onApplyTotals }: DailyHours
     const existing = logs[dateKey];
     if (existing) {
       setModalHours(existing.normalHours);
-      setModalAllowance(existing.hasDailyAllowance);
+      setModalAllowance(existing.hasDailyAllowance ?? existing.normalHours > 0);
     } else {
-      setModalHours(isWeekend(day) ? 0 : 8);
-      setModalAllowance(!isWeekend(day));
+      const defaultHours = isWeekend(day) ? 0 : 8;
+      setModalHours(defaultHours);
+      setModalAllowance(defaultHours > 0);
+    }
+  };
+
+  const handleHoursInputChange = (val: number) => {
+    setModalHours(val);
+    if (val > 0) {
+      setModalAllowance(true);
+    } else {
+      setModalAllowance(false);
     }
   };
 
@@ -170,7 +180,11 @@ export default function DailyHoursCalendar({ userId, onApplyTotals }: DailyHours
   });
 
   const totalMonthlyHours = currentMonthLogs.reduce((acc, log) => acc + log.normalHours, 0);
-  const totalMonthlyAllowanceDays = currentMonthLogs.filter(log => log.hasDailyAllowance).length;
+  const totalMonthlyAllowanceDays = currentMonthLogs.filter(log => log.hasDailyAllowance && log.normalHours > 0).length;
+
+  useEffect(() => {
+    onApplyTotals(totalMonthlyHours, totalMonthlyAllowanceDays);
+  }, [totalMonthlyHours, totalMonthlyAllowanceDays, currentDate]);
 
   const renderCells = () => {
     const monthStart = startOfMonth(currentDate);
@@ -304,7 +318,7 @@ export default function DailyHoursCalendar({ userId, onApplyTotals }: DailyHours
                     {[10, 8, 6].map(h => (
                       <button 
                         key={h}
-                        onClick={() => setModalHours(h)}
+                        onClick={() => handleHoursInputChange(h)}
                         className={cn(
                           "text-xs px-2 py-1 rounded-sm border transition-colors",
                           modalHours === h 
@@ -323,7 +337,7 @@ export default function DailyHoursCalendar({ userId, onApplyTotals }: DailyHours
                   max="24" 
                   step="1"
                   value={modalHours}
-                  onChange={(e) => setModalHours(parseInt(e.target.value, 10) || 0)}
+                  onChange={(e) => handleHoursInputChange(parseInt(e.target.value, 10) || 0)}
                   className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100"
                 />
               </div>

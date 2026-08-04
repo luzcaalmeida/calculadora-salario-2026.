@@ -6,9 +6,10 @@ interface EmployeeFormProps {
   data: WorkerData;
   onChange: (data: WorkerData) => void;
   onCalculate: () => void;
+  mode?: 'calendar' | 'calculator';
 }
 
-export default function EmployeeForm({ data, onChange, onCalculate }: EmployeeFormProps) {
+export default function EmployeeForm({ data, onChange, onCalculate, mode = 'calculator' }: EmployeeFormProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
@@ -28,86 +29,79 @@ export default function EmployeeForm({ data, onChange, onCalculate }: EmployeeFo
 
   return (
     <div className="bg-neutral-800 rounded-none border border-neutral-700 overflow-hidden">
-      <div className="p-4 border-b border-neutral-700 bg-neutral-950">
+      <div className="p-4 border-b border-neutral-700 bg-neutral-950 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2 tracking-wide uppercase">
           <Settings2 className="w-5 h-5 text-cyan-500" />
-          Configuração de Processamento
+          {mode === 'calendar' ? 'Taxas & Situação Fiscal' : 'Parâmetros da Calculadora'}
         </h2>
+        {mode === 'calendar' && (
+          <span className="text-xs text-cyan-400 bg-cyan-950/50 px-2 py-1 border border-cyan-900/50 uppercase tracking-widest">
+            Cálculo Automático pelo Calendário
+          </span>
+        )}
       </div>
 
-      <div className="p-6 space-y-8">
-        {/* Remuneração Base */}
+      <div className="p-6 space-y-6">
+        {/* Valores de Hora e Diária */}
         <section>
           <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Coins className="w-4 h-4 text-cyan-600" /> Remuneração Principal
+            <Coins className="w-4 h-4 text-cyan-600" /> Valores Base
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Valor Hora (€/h)</label>
-              <input type="number" name="hourlyRate" value={data.hourlyRate || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
+              <input 
+                type="number" 
+                name="hourlyRate" 
+                value={data.hourlyRate || ''} 
+                onChange={handleChange} 
+                className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" 
+              />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Horas Trabalhadas</label>
-              <input type="number" name="hoursWorked" value={data.hoursWorked || ''} onChange={handleChange} className="w-full px-3 py-2 bg-cyan-950/20 border border-cyan-900/50 rounded-none focus:outline-none focus:border-cyan-500 text-cyan-400 transition-colors" />
-            </div>
-          </div>
-        </section>
 
-        {/* Ajudas de Custo */}
-        <section>
-          <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-indigo-500" /> Ajudas de Custo (Diárias)
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {mode === 'calculator' && (
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Horas Trabalhadas</label>
+                <input 
+                  type="number" 
+                  name="hoursWorked" 
+                  value={data.hoursWorked || ''} 
+                  onChange={handleChange} 
+                  className="w-full px-3 py-2 bg-cyan-950/20 border border-cyan-900/50 rounded-none focus:outline-none focus:border-cyan-500 text-cyan-400 transition-colors" 
+                />
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Valor da Diária (€)</label>
-              <input type="number" name="dailyAllowance" value={data.dailyAllowance || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-indigo-500 text-neutral-100 transition-colors" />
+              <input 
+                type="number" 
+                name="dailyAllowance" 
+                value={data.dailyAllowance || ''} 
+                onChange={handleChange} 
+                className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-indigo-500 text-neutral-100 transition-colors" 
+              />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Dias com Diária</label>
-              <input type="number" name="daysWorked" value={data.daysWorked || ''} onChange={handleChange} className="w-full px-3 py-2 bg-indigo-950/20 border border-indigo-900/50 rounded-none focus:outline-none focus:border-indigo-500 text-indigo-400 transition-colors" />
-            </div>
-          </div>
-        </section>
 
-        {/* Outros Abonos */}
-        <section>
-          <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Outros Abonos</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Diuturnidades (€)</label>
-              <input type="number" name="seniority" value={data.seniority || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Prémios (€)</label>
-              <input type="number" name="bonuses" value={data.bonuses || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Outras Despesas (Isentas) (€)</label>
-              <input type="number" name="expenses" value={data.expenses || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
-            </div>
-          </div>
-        </section>
-
-        {/* Subsídios */}
-        <section>
-          <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Subsídios Mensais Recebidos</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Subsídio de Férias (€)</label>
-              <input type="number" name="monthlyHolidaySubsidy" value={data.monthlyHolidaySubsidy || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Subsídio de Natal (€)</label>
-              <input type="number" name="monthlyChristmasSubsidy" value={data.monthlyChristmasSubsidy || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
-            </div>
+            {mode === 'calculator' && (
+              <div>
+                <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Dias com Diária</label>
+                <input 
+                  type="number" 
+                  name="daysWorked" 
+                  value={data.daysWorked || ''} 
+                  onChange={handleChange} 
+                  className="w-full px-3 py-2 bg-indigo-950/20 border border-indigo-900/50 rounded-none focus:outline-none focus:border-indigo-500 text-indigo-400 transition-colors" 
+                />
+              </div>
+            )}
           </div>
         </section>
 
         {/* Situação Fiscal (IRS) */}
         <section>
           <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <User className="w-4 h-4 text-cyan-600" /> Situação Fiscal (IRS)
+            <User className="w-4 h-4 text-cyan-600" /> Situação Fiscal (IRS & SS)
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
