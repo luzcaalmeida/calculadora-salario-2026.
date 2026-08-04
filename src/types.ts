@@ -10,7 +10,6 @@ export type TaxRegime = 'Normal' | 'RNH' | 'IRS Jovem';
 export type MaritalStatus = 'Não Casado' | 'Casado (Único Titular)' | 'Casado (Dois Titulares)';
 
 export interface WorkerData {
-  baseSalary: number;
   hourlyRate: number;
   hoursWorked: number;
   dailyAllowance: number; // Valor da diária
@@ -18,8 +17,8 @@ export interface WorkerData {
   seniority: number; // Diuturnidades
   bonuses: number; // Prémios
   expenses: number; // Outras despesas
-  holidaySubsidyPercentage: 0 | 50 | 100; // Subsídio de férias
-  christmasSubsidyPercentage: 0 | 50 | 100; // Subsídio de natal
+  monthlyHolidaySubsidy: number; // Subsídio de férias mensal
+  monthlyChristmasSubsidy: number; // Subsídio de natal mensal
   taxRegime: TaxRegime;
   maritalStatus: MaritalStatus;
   dependents: number;

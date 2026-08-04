@@ -14,7 +14,7 @@ export default function EmployeeForm({ data, onChange, onCalculate }: EmployeeFo
     
     let parsedValue: any = value;
     
-    if (type === 'number' || name === 'holidaySubsidyPercentage' || name === 'christmasSubsidyPercentage') {
+    if (type === 'number') {
       parsedValue = parseFloat(value) || 0;
     } else if (type === 'checkbox') {
       parsedValue = (e.target as HTMLInputElement).checked;
@@ -42,10 +42,6 @@ export default function EmployeeForm({ data, onChange, onCalculate }: EmployeeFo
             <Coins className="w-4 h-4 text-cyan-600" /> Remuneração Principal
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Salário Base (€)</label>
-              <input type="number" name="baseSalary" value={data.baseSalary || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
-            </div>
             <div>
               <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Valor Hora (€/h)</label>
               <input type="number" name="hourlyRate" value={data.hourlyRate || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
@@ -95,23 +91,15 @@ export default function EmployeeForm({ data, onChange, onCalculate }: EmployeeFo
 
         {/* Subsídios */}
         <section>
-          <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Pagamento de Subsídios</h3>
+          <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-4">Subsídios Mensais Recebidos</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Subsídio de Férias</label>
-              <select name="holidaySubsidyPercentage" value={data.holidaySubsidyPercentage.toString()} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors appearance-none">
-                <option value="0">0% (Pago na totalidade na época)</option>
-                <option value="50">50% em Duodécimos</option>
-                <option value="100">100% em Duodécimos</option>
-              </select>
+              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Subsídio de Férias (€)</label>
+              <input type="number" name="monthlyHolidaySubsidy" value={data.monthlyHolidaySubsidy || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Subsídio de Natal</label>
-              <select name="christmasSubsidyPercentage" value={data.christmasSubsidyPercentage.toString()} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors appearance-none">
-                <option value="0">0% (Pago na totalidade na época)</option>
-                <option value="50">50% em Duodécimos</option>
-                <option value="100">100% em Duodécimos</option>
-              </select>
+              <label className="block text-xs font-medium text-neutral-400 mb-1 uppercase tracking-wider">Subsídio de Natal (€)</label>
+              <input type="number" name="monthlyChristmasSubsidy" value={data.monthlyChristmasSubsidy || ''} onChange={handleChange} className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-none focus:outline-none focus:border-cyan-500 text-neutral-100 transition-colors" />
             </div>
           </div>
         </section>

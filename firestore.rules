@@ -11,55 +11,27 @@ service cloud.firestore {
 
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
-    function isSignedIn() { return request.auth != null && request.auth.token.email_verified == true; }
+    function isSignedIn() { return request.auth != null; }
 
     function isValidUser(data) {
-      return data.keys().hasAll(['name', 'email', 'createdAt', 'updatedAt']) &&
-             data.keys().size() <= 6 &&
+      return data.keys().hasAll(['name', 'email']) &&
              data.name is string && data.name.size() <= 100 &&
-             data.email is string && data.email.size() <= 100 &&
-             (!('phone' in data) || (data.phone is string && data.phone.size() <= 20)) &&
-             (!('company' in data) || (data.company is string && data.company.size() <= 100)) &&
-             data.createdAt is timestamp &&
-             data.updatedAt is timestamp;
+             data.email is string && data.email.size() <= 100;
     }
 
     function isValidHoursLog(data) {
-      return data.keys().hasAll(['date', 'normalHours', 'hasDailyAllowance', 'userId', 'updatedAt']) &&
-             data.keys().size() == 5 &&
-             data.date is string && data.date.size() == 10 && data.date.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
-             data.normalHours is number && data.normalHours >= 0 && data.normalHours <= 24 &&
+      return data.keys().hasAll(['date', 'normalHours', 'hasDailyAllowance', 'userId']) &&
+             data.date is string &&
+             data.normalHours is number &&
              data.hasDailyAllowance is bool &&
-             data.userId is string && data.userId.size() <= 128 && data.userId == request.auth.uid &&
-             data.updatedAt is timestamp;
+             data.userId is string && data.userId == request.auth.uid;
     }
 
     match /users/{userId} {
-      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
-      allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId &&
-                       isValidUser(incoming()) &&
-                       incoming().createdAt == request.time &&
-                       incoming().updatedAt == request.time;
-      allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId &&
-                       isValidUser(incoming()) &&
-                       incoming().createdAt == existing().createdAt &&
-                       incoming().updatedAt == request.time &&
-                       incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'company', 'updatedAt']);
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
 
       match /hoursLog/{logId} {
-        allow read: if isSignedIn() && isValidId(userId) && isValidId(logId) && request.auth.uid == userId;
-        allow list: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
-        allow create: if isSignedIn() && isValidId(userId) && isValidId(logId) && request.auth.uid == userId &&
-                         isValidHoursLog(incoming()) &&
-                         incoming().userId == userId &&
-                         incoming().updatedAt == request.time &&
-                         exists(/databases/$(database)/documents/users/$(userId));
-        allow update: if isSignedIn() && isValidId(userId) && isValidId(logId) && request.auth.uid == userId &&
-                         isValidHoursLog(incoming()) &&
-                         incoming().userId == userId &&
-                         incoming().updatedAt == request.time &&
-                         incoming().diff(existing()).affectedKeys().hasOnly(['normalHours', 'hasDailyAllowance', 'updatedAt']);
-        allow delete: if isSignedIn() && isValidId(userId) && isValidId(logId) && request.auth.uid == userId;
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
       }
     }
   }

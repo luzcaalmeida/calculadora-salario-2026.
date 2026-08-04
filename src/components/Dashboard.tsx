@@ -13,7 +13,6 @@ interface DashboardProps {
 }
 
 const defaultWorkerData: WorkerData = {
-  baseSalary: 1000,
   hourlyRate: 10,
   hoursWorked: 0,
   dailyAllowance: 60,
@@ -21,8 +20,8 @@ const defaultWorkerData: WorkerData = {
   seniority: 0,
   bonuses: 0,
   expenses: 0,
-  holidaySubsidyPercentage: 50,
-  christmasSubsidyPercentage: 50,
+  monthlyHolidaySubsidy: 0,
+  monthlyChristmasSubsidy: 0,
   taxRegime: 'Normal',
   maritalStatus: 'Não Casado',
   dependents: 0,
@@ -77,7 +76,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
         </div>
         
         {/* Navigation Tabs */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-8 border-t border-neutral-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-8 border-t border-neutral-800 overflow-x-auto">
           <button
             onClick={() => setActiveTab('calculator')}
             className={`py-3 text-xs tracking-widest uppercase font-semibold flex items-center gap-2 border-b-2 transition-colors ${

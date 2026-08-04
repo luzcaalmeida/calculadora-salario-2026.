@@ -2,7 +2,7 @@ import { WorkerData, PayrollCalculation } from '../types';
 
 export function calculatePayroll(data: WorkerData): PayrollCalculation {
   // Remuneração base
-  const basePay = data.hoursWorked > 0 ? data.hoursWorked * data.hourlyRate : data.baseSalary;
+  const basePay = data.hoursWorked * data.hourlyRate;
   
   // Ajudas de Custo (Diárias)
   // Assumindo um limite não tributável genérico de 62.75€ para obras no estrangeiro.
@@ -12,11 +12,9 @@ export function calculatePayroll(data: WorkerData): PayrollCalculation {
   const taxFreeAllowances = Math.min(data.dailyAllowance, nonTaxableLimitPerDay) * data.daysWorked;
   const taxableAllowances = Math.max(0, data.dailyAllowance - nonTaxableLimitPerDay) * data.daysWorked;
   
-  // Duodécimos dos subsídios (usando baseSalary como referência ou basePay)
-  // Usualmente é o baseSalary ou o valor que receberia no mês.
-  const referenceSalary = data.baseSalary > 0 ? data.baseSalary : basePay;
-  const holidaySubsidyValue = (referenceSalary / 12) * (data.holidaySubsidyPercentage / 100);
-  const christmasSubsidyValue = (referenceSalary / 12) * (data.christmasSubsidyPercentage / 100);
+  // Subsídios (Mensais)
+  const holidaySubsidyValue = data.monthlyHolidaySubsidy;
+  const christmasSubsidyValue = data.monthlyChristmasSubsidy;
   
   // Rendimento Tributável
   const taxableIncome = basePay + data.seniority + data.bonuses + taxableAllowances + holidaySubsidyValue + christmasSubsidyValue;
